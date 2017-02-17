@@ -1,9 +1,8 @@
 Go 1.8 Release Party
-Sydney Go Users' Group
-16 Feb 2017
+Chisinau Go Meetup
+17 Feb 2017
 
-Dave Cheney
-@davecheney
+Artiom Diomin
 
 * License and Materials
 
@@ -17,13 +16,15 @@ You are encouraged to remix, transform, or build upon the material, providing yo
 
 If you have suggestions or corrections to this presentation, please raise [[https://github.com/davecheney/go-1.8-release-party/issues][an issue on the GitHub project]].
 
+.caption most slides provided by Dave Cheney and Francesc Campoy
+
 * Go 1.8
 
 Go 1.8 is released!
 
 .image img/rocket.jpg _ 350
 
-.link https://t.co/cIEsMPeY0k Go 1.8 Announcement 
+.link https://t.co/cIEsMPeY0k Go 1.8 Announcement
 
 Go 1.8 is the 9th release in the Go 1 series. It follows from the previous version, Go 1.7, [[https://blog.golang.org/go1.7][released on the 16th of August, 2016]]
 
@@ -43,8 +44,6 @@ So, what's happened in the last six months?
 
 * Performance
 
-As always, the changes are so general and varied that precise statements about performance are difficult to make.
-
 Most programs should run a bit faster, due to speedups in the garbage collector and optimizations in the standard library.
 
 The new back end, based on static single assignment form (SSA), generates more compact, more efficient code and provides a better platform for optimizations such as bounds check elimination.
@@ -59,7 +58,41 @@ The new back end, based on static single assignment form (SSA), generates more c
 
 Garbage collection pauses should be significantly shorter than they were in Go 1.7, usually under 100 microseconds and often as low as 10 microseconds.
 
-.link https://talks.golang.org/2017/state-of-go.slide#34 Garbage Collector Improvements Over Time (ht. @francesc)
+.link https://talks.golang.org/2017/state-of-go.slide#34 Garbage Collector Improvements Over Time (@francesc)
+
+* GC history
+
+* GC <= go 1.5
+
+.image img/gc_prior15.png 500 _
+
+* GC go 1.5 VS go 1.6
+
+.image img/go1_6_gc.png 500 _
+
+* GC history in tweets
+
+.caption Thanks Francesc :)
+
+* go 1.5
+
+.image img/gct1.png _ 900
+
+* go 1.6
+
+.image img/gct2.png _ 900
+
+* go 1.6.3
+
+.image img/gct3.png _ 700
+
+* go 1.7
+
+.image img/gct4.png _ 900
+
+* go 1.8 (beta 1)
+
+.image img/gct5.png _ 700
 
 # More work remains for Go 1.9.
 
@@ -71,20 +104,20 @@ The overhead of deferred function calls has been reduced by nearly half.
 
  name           old time/op  new time/op  delta
  Defer-4        75.1ns ± 1%  43.3ns ± 1%  -42.31%   (p=0.000 n=8+10)
- 
+
  In reality, this speeds up defer by about 2.2X. The two benchmarks
  below compare a Lock/defer Unlock pair (DeferLock) with a Lock/Unlock
  pair (NoDeferLock). NoDeferLock establishes a baseline cost, so these
  two benchmarks together show that this change reduces the overhead of
  defer from 61.4ns to 27.9ns.
- 
+
  name           old time/op  new time/op  delta
  DeferLock-4    77.4ns ± 1%  43.9ns ± 1%  -43.31%  (p=0.000 n=10+10)
  NoDeferLock-4  16.0ns ± 0%  15.9ns ± 0%   -0.39%    (p=0.000 n=9+8)
 
 .link https://golang.org/cl/29656 Source: CL 29656
 .link https://dave.cheney.net/2016/11/19/go-1-8-toolchain-improvements#defer Defer and cgo improvements
- 
+
 * Cgo
 
 The overhead of cgo calls is reduced by more than half:
@@ -106,29 +139,29 @@ There have been optimizations to implementations in the `bytes`, `crypto/aes`, `
 
 * Compiler changes
 
-* SSA backend
+* SSA everywhere!
 
-- All backends updated to use the new SSA form. Old "plan9" style compiler backend deleted.
-- Big performance improvements for 32-bit ARM.
-- Easy to add new SSA backends (for values of easy compiler engineers work in). eg, adding MIPS backend was straight forward, SPARC and RISC-V are rumored to be next.
+The SSA backend:
 
-* New parser
+- all backends updated to use the new SSA form.
+- generates more compact and efficient code
+- is a better platform for optimizations
 
-Robert Griesemer and Matthew Dempsky replaced the parser.
+For 32-bit ARM systems this means 20-30% speed up!
 
-The new parser removes many of the package level variables which came along for the ride from the previous YACC based parser.
+For others (where SSA was used already) gains are 0-10%.
 
-Removing package level globals is a stepping stone to making the compiler more parallel. In fact this work has started in the development branch.
+.caption [[https://talks.golang.org/2017/state-of-go.slide#17][stolen from @francesc]]
 
-This new parser is considerably faster, but in 1.8 is hamstrung by having to convert between the new style AST and the old version the rest of the compiler expects.
+* History of compiler speed
 
-Expect this AST conversion to be removed in Go 1.9.
+.image img/compiler-speed-history.png _ 1000
 
-* Compiler speed
+* Go 1.8 compiler speed
 
 About a 12-15% improvement compared to Go 1.7
 
-.image https://dave.cheney.net/wp-content/uploads/2016/11/Screenshot-2016-11-19-at-08.57.10.png
+.image img/go18-compiler-speed.png
 
 * Struct conversion
 
@@ -148,7 +181,7 @@ The number of platforms Go supports, on balance, continues to grow.
 
 * Go 1.8 may be the last to support ARMv5
 
-Supporting ARMv5 has been a problem for several releases. 
+Supporting ARMv5 has been a problem for several releases.
 
 Currently we have no ARMv5 builders so have no idea if Go 1.8 actually works on real ARMv5 hardware (we test on ARMv7).
 
@@ -162,20 +195,6 @@ If you or your company care about ARMv5, you have to shoulder some of the burden
 _No_ARMv5_builders_means_ARMv5_support_will_be_dropped_in_Go_1.9_.
 
 * Tool changes
-
-* go tool yacc
-
-The yacc tool (previously available by running “go tool yacc”) has been removed. As of Go 1.7 it was no longer used by the Go compiler.
-
-It has moved to the “tools” repository and is now available at golang.org/x/tools/cmd/goyacc.
-
-* go tool asm
-
-`go`tool`asm` now supports a flotilla of Intel and PPC vector instructions.
-
-For 64-bit x86 systems, the following instructions have been added: `VBROADCASTSD`, `BROADCASTSS`, `MOVDDUP`, `MOVSHDUP`, `MOVSLDUP`, `VMOVDDUP`, `VMOVSHDUP`, and `VMOVSLDUP`.
-
-For 64-bit PPC systems, the common vector scalar instructions have been added: `LXS`, `LXSDX`, `LXSI`, `LXSIWAX`, `LXSIWZX`, `LXV`, `LXVD2X`, `LXVDSX`, `LXVW4X`, `MFVSR`, `MFVSRD`, `MFVSRWZ`, `MTVSR`, `MTVSRD`, `MTVSRWA`, `MTVSRWZ`, `STXS`, `STXSDX`, `STXSI`, `STXSIWX`, `STXV`, `STXVD2X`, `STXVW4X`, `XSCV`, `XSCVDPSP`, `XSCVDPSPN`, `XSCVDPSXDS`, `XSCVDPSXWS`, `XSCVDPUXDS`, `XSCVDPUXWS`, `XSCVSPDP`, `XSCVSPDPN`, `XSCVSXDDP`, `XSCVSXDSP`, `XSCVUXDDP`, `XSCVUXDSP`, `XSCVX`, `XSCVXP`, `XVCV`, `XVCVDPSP`, `XVCVDPSXDS`, `XVCVDPSXWS`, `XVCVDPUXDS`, `XVCVDPUXWS`, `XVCVSPDP`, `XVCVSPSXDS`, `XVCVSPSXWS`, `XVCVSPUXDS`, `XVCVSPUXWS`, `XVCVSXDDP`, `XVCVSXDSP`, `XVCVSXWDP`, `XVCVSXWSP`, `XVCVUXDDP`, `XVCVUXDSP`, `XVCVUXWDP`, `XVCVUXWSP`, `XVCVX`, `XVCVXP`, `XXLAND`, `XXLANDC`, `XXLANDQ`, `XXLEQV`, `XXLNAND`, `XXLNOR`, `XXLOR`, `XXLORC`, `XXLORQ`, `XXLXOR`, `XXMRG`, `XXMRGHW`, `XXMRGLW`, `XXPERM`, `XXPERMDI`, `XXSEL`, `XXSI`, `XXSLDWI`, `XXSPLT`, and `XXSPLTW`.
 
 * go tool trace
 
@@ -257,12 +276,6 @@ _note_: Due to an oversight this only works with `sync.Mutex`, not `sync.RWMutex
          .          .     18:   const N = 16
          .          .     19:   for n := 0; n < b.N; n++ {
 
-* Homework
-
-Mutex profile is not supported in, [[pkg/profile][https://github.com/pkg/profile]]. yet ...
-
-Who wants to be the first to send me a PR?
-
 * Plugins
 
 Go now supports a “plugin” build mode for generating plugins written in Go, and a new plugin package for loading such plugins at run time.
@@ -286,6 +299,8 @@ Then to build plugin.so
  Hello, number 7
 
 * Plugins demo
+
+.video video/go-plugin-demo.mp4 video/mp4 _ 600
 
 Demo video: [[https://twitter.com/francesc/status/827851085943566336][twitter.com/francesc]]
 
@@ -313,11 +328,37 @@ If the runtime detects this condition, it prints a diagnosis and crashes the pro
 
 * Changes to the standard library
 
+* Sorting
+
+Given a slice of `Person`
+
+    var p []Person
+
+Print the slice sorted by name, age, and SSN.
+
+.code stdlib/sort_test.go /sort.Sort/,/bySSN/
+
+Easy, right?
+
+.caption once again, taken from [[https://talks.golang.org/2017/state-of-go.slide#43][@francesc]]
+
+* Sorting
+
+Well, you forgot about this part.
+
+.code stdlib/sort_test.go /byName/,/bySSN\) Swap/
+
+.caption once again, taken from [[https://talks.golang.org/2017/state-of-go.slide#44][@francesc]]
+
 * sort.Slice
 
-The `sort` package has a new convenice method `sort.Slice`
+Since Go 1.8 you can simply write this:
 
-.code examples/sort.go /switch.+{/,/^\t}/
+.code stdlib/sort_test.go /sort\.Slice/,/SSN/
+
+Generic sort without generics!
+
+.caption once again, taken from [[https://talks.golang.org/2017/state-of-go.slide#45][@francesc]]
 
 * HTTP shutdown
 
@@ -343,58 +384,7 @@ Continuing Go 1.7's adoption of `context.Context` into the standard library, Go 
 - There have been significant additions to the `database/sql` package with context support.
 - All nine of the new `Lookup` methods on the new `net.Resolver` now take a context.
 
-* Minor changes
-
-.link http://golang.org/doc/go1.8#minor_library_changes Minor library changes
-
-* What's coming up in Go 1.9
-
-* What's coming up in Go 1.9
-
-Before we close, let's quickly touch on some of the things coming up in Go 1.9
-
-_note_: All of these are speculation, nothing is set in stone until code hits the repo.
-
-* Aliases
-
-After being rolled back before the Go 1.8 freeze, aliases are being re-proposed for Go 1.9 in a more limited fashion.
-
-.link https://golang.org/design/18130-type-alias
-
-.play -edit examples/alias.go
-
-* Faster / cheaper runtime.MemStats
-
-The cost of calling `runtime.MemStats` is propotional to the size of the heap; Austin recently timed it at ~1.7ms per Gb.
-
-There is a CL ready to land that reduces it to 20 us per proc (thread servicing a goroutine) which is a much smaller upper bound.
-
-.link https://golang.org/issue/13613
-
-* Improvements to the inliner
-
-Inlining has historically been limited to leaf functions because of the concern of agressive inlining on the call graph.
-
-In support of this Robert Griesemer and Matthew Dempsky have been improving the line number tracking in Go 1.9 to make it flexible enough to lift the restriction on non-leaf functions.
-
-An unnamed intern has been hired to work on the inliner for 1.9.
-
-Josh Bleecher-Snyder has also suggest that the cost model for inlining should be revised to make sure inlining is paying for itself.
-
-.link https://github.com/golang/go/issues/17566 Issue 17566
-
-* A user level poller
-
-Go has used epoll/kqueue/poll/select for _network_sockets_ for years.
-
-Reads/Writes to other file descriptors have traditionally consumed an OS thread during operation
-
-Recently Ian Lance Taylor landed a refactor that broken our the `runtime` polling subsystem and extended to work for the rest of the `os` package.
-
-.link https://go-review.googlesource.com/#/c/36799/ net: refactor poller into new internal/poll package
-.link https://go-review.googlesource.com/#/c/36800/ os: use poller for file I/O 
-
-There is no sign of a programmer accessible poller, yet.
+* Off topic
 
 * Official dependency management tool
 
@@ -417,4 +407,3 @@ It's described as _pre_alpha_ at the moment, but you should check it out, and le
 Upgrade to Go 1.8, now!
 
 It's literally the best version of Go, _ever_.
-
